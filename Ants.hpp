@@ -1,13 +1,16 @@
+#pragma once
 #include <iostream>
-#include "Fourmiliere.cpp"
+#include <string>
+#include <vector>
 using namespace std;
 
 
 class Ants {
     private:
     bool bouger;
-    string salle;
+    std::vector<std::string>cheminParcouru;
+    int tempsDepart;
 
 public:
-    Ants( string salle, bool bouger);    
+    Ants( std::string salle="", bool bouger=false);    
 };

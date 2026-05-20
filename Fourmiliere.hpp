@@ -1,7 +1,9 @@
+#pragma once
 #ifndef FOURMILIERE_HPP
 #define FOURMILIERE_HPP
-#include "Ants.cpp"
+#include "Ants.hpp"
 #include <vector>
+#include <map>
 #include <string>
 
 struct Sommet {
@@ -29,10 +31,11 @@ public:
 
     Fourmiliere();
     ~Fourmiliere();
-    void resoudre();
+    void resoudreBFS();
     bool chargerDepuisFichier(const std::string& nomFichier);
     void afficher() const;
     void afficherEtapes() const;
+    int getCapacite(const std::string& nom) const;
 };
 
 #endif // FOURMILIERE_HPP

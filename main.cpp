@@ -3,8 +3,9 @@
 
 int main() {
     Fourmiliere f;
-    if (f.chargerDepuisFichier("formilliere/fourmiliere_un.txt")) {
+    if (f.chargerDepuisFichier("formilliere/fourmiliere_cinq.txt")) {
         f.afficher();
+        f.resoudreBFS();
     } else {
         std::cerr << "Erreur lors du chargement du fichier." << std::endl;
     }

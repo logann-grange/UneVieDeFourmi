@@ -1,7 +1,7 @@
 #include "Ants.hpp"
 
-Ants::Ants(string salle, bool bouger) {
-    this->salle = salle;
+Ants::Ants(std::string salle, bool bouger) {
+    this->cheminParcouru.push_back(salle);
     this->bouger = bouger;
 }
 
