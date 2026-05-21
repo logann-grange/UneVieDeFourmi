@@ -2,9 +2,13 @@
 #include <iostream>
 #include "ResolutionBFS.hpp"
 
-int main() {
+int main(int argc, char* argv[]) {
     Fourmiliere f;
-    if (f.chargerDepuisFichier("formilliere/La_hormiguera_de_la_muerte.txt")) {
+    if (argc < 2) {
+        std::cerr << "Usage: " << argv[0] << " <fichier_fourmiliere>" << std::endl;
+        return 1;
+    }
+    if (f.chargerDepuisFichier("formilliere/" + std::string(argv[1]))) {
         f.afficher();
         ResolutionBFS(f);
     } else {
