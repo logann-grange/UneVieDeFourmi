@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 struct Sommet {
     std::string nom;
@@ -24,6 +25,7 @@ struct Arete {
 
 class Fourmiliere {
 public:
+    // === Attributs ===
     int nbFourmis;
     std::string sommetDepart;
     std::string sommetArrivee;
@@ -31,21 +33,36 @@ public:
     Arete*  teteAretes;
     std::vector<Ants> fourmis;
 
+    // === Constructeur / Destructeur ===
     Fourmiliere();
     ~Fourmiliere();
 
+    // === Chargement / Affichage ===
     bool chargerDepuisFichier(const std::string &nomFichier);
     void afficher() const;
     void afficherEtapes() const;
     void resoudre();
 
-    std::vector<std::string> trouverChemin();
+    // === Recherche de chemin ===
+    std::vector<std::string> trouverChemin(
+        const std::string& debut,
+        const std::string& fin,
+        const std::unordered_set<std::string>& sallesBloquees = {}
+    );
+    std::vector<std::string> trouverChemin(
+        const std::unordered_set<std::string>& sallesBloquees = {}
+    );
+
     std::vector<std::vector<std::string>> trouverTousChemins();
 
-private:
-    std::vector<std::string> voisins(const std::string& nom) const;
-    int capacite(const std::string& nom) const;
-    int occupation(const std::string& nom) const;
+    std::vector<std::string> trouverCheminResidual(
+        const std::unordered_map<std::string, std::unordered_map<std::string, int>> &cap
+    );
+
+    // === Helpers ===
+    std::vector<std::string> voisins(const std::string &nom) const;
+    int capacite(const std::string &nom) const;
+    int occupation(const std::string &nom) const;
 };
 
 #endif

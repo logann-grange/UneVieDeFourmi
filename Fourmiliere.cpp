@@ -8,6 +8,7 @@
 #include <string>
 #include <deque>
 #include <unordered_map>
+#include <unordered_set>
 #include <algorithm>
 #include <climits>
 
@@ -28,7 +29,7 @@ Fourmiliere::~Fourmiliere() {
     }
 }
 
-bool Fourmiliere::chargerDepuisFichier(const std::string& nomFichier) {
+bool Fourmiliere::chargerDepuisFichier(const std::string &nomFichier) {
     std::ifstream fichier(nomFichier);
     if (!fichier) return false;
     std::string ligne;
@@ -114,77 +115,67 @@ std::vector<std::string> Fourmiliere::voisins(const std::string &nom) const {
     return v;
 }
 
-// == Bidirectional BFS ==================
+// == BFS depuis un sommet explicite ==================
 
-std::vector<std::string> Fourmiliere::trouverChemin() {
-    if (sommetDepart.empty() || sommetArrivee.empty()) return {};
-    if (sommetDepart == sommetArrivee) return { sommetDepart };
+std::vector<std::string> Fourmiliere::trouverChemin(
+    const std::string& debut,
+    const std::string& fin,
+    const std::unordered_set<std::string>& sallesBloquees)
+{
+    if (debut == fin) return { debut };
 
-    std::unordered_map<std::string, std::string> parentFront, parentBack;
-    std::deque<std::string> fileFront, fileBack;
+    std::unordered_map<std::string, std::string> parent;
+    std::deque<std::string> file;
+    parent[debut] = "";
+    file.push_back(debut);
 
-    parentFront[sommetDepart] = "";
-    parentBack[sommetArrivee] = "";
-    fileFront.push_back(sommetDepart);
-    fileBack.push_back(sommetArrivee);
-
-    auto reconstruire = [&](const std::string& jonction) {
-        std::vector<std::string> chemin;
-        for (std::string c = jonction; !c.empty(); c = parentFront[c])
-            chemin.push_back(c);
-        std::reverse(chemin.begin(), chemin.end());
-        std::string c = parentBack.count(jonction) ? parentBack[jonction] : "";
-        while (!c.empty()) {
-            chemin.push_back(c);
-            c = parentBack.count(c) ? parentBack[c] : "";
-        }
-        return chemin;
-    };
-
-    while (!fileFront.empty() || !fileBack.empty()) {
-        if (!fileFront.empty()) {
-            std::string cur = fileFront.front(); fileFront.pop_front();
-            for (const std::string& v : voisins(cur)) {
-                if (!parentFront.count(v)) {
-                    parentFront[v] = cur;
-                    fileFront.push_back(v);
-                }
-                if (parentBack.count(v)) return reconstruire(v);
+    while (!file.empty()) {
+        std::string cur = file.front(); file.pop_front();
+        for (const std::string& v : voisins(cur)) {
+            if (parent.count(v)) continue;
+            // Salle bloquee, sauf si c'est la destination
+            if (sallesBloquees.count(v) && v != fin) continue;
+            parent[v] = cur;
+            if (v == fin) {
+                std::vector<std::string> chemin;
+                for (std::string c = fin; !c.empty(); c = parent[c])
+                    chemin.push_back(c);
+                std::reverse(chemin.begin(), chemin.end());
+                return chemin;
             }
-        }
-        if (!fileBack.empty()) {
-            std::string cur = fileBack.front(); fileBack.pop_front();
-            for (const std::string& v : voisins(cur)) {
-                if (!parentBack.count(v)) {
-                    parentBack[v] = cur;
-                    fileBack.push_back(v);
-                }
-                if (parentFront.count(v)) return reconstruire(v);
-            }
+            file.push_back(v);
         }
     }
     return {};
 }
 
+// == Surcharge sans arguments (chemin initial global) ==================
+
+std::vector<std::string> Fourmiliere::trouverChemin(
+    const std::unordered_set<std::string>& sallesBloquees)
+{
+    return trouverChemin(sommetDepart, sommetArrivee, sallesBloquees);
+}
+
 // == Simulation ========
 
 void Fourmiliere::resoudre() {
-    std::vector<std::string> chemin = trouverChemin();
-    if (chemin.empty()) {
+    std::vector<std::string> cheminInitial = trouverChemin({});
+    if (cheminInitial.empty()) {
         std::cout << "Aucun chemin trouvé.\n";
         return;
     }
 
-    std::cout << "Chemin : ";
-    for (size_t i = 0; i < chemin.size(); i++) {
+    std::cout << "Chemin initial : ";
+    for (size_t i = 0; i < cheminInitial.size(); i++) {
         if (i) std::cout << " -> ";
-        std::cout << chemin[i];
+        std::cout << cheminInitial[i];
     }
-    std::cout << " (" << chemin.size() - 1 << " etapes)\n\n";
+    std::cout << " (" << cheminInitial.size() - 1 << " etapes)\n\n";
 
-    std::unordered_map<std::string, int> positionDansChemin;
-    for (int i = 0; i < (int)chemin.size(); i++)
-        positionDansChemin[chemin[i]] = i;
+    std::unordered_map<std::string, int> posRef;
+    for (int i = 0; i < (int)cheminInitial.size(); i++)
+        posRef[cheminInitial[i]] = i;
 
     for (int i = 0; i < nbFourmis; i++)
         fourmis[i] = Ants(i + 1, sommetDepart, false);
@@ -196,32 +187,63 @@ void Fourmiliere::resoudre() {
         etape++;
         std::cout << "=== Etape " << etape << " ===\n";
 
-        // Indices des fourmis pas encore arrivées, triées les plus avancées d'abord
+        for (int i = 0; i < nbFourmis; i++)
+            fourmis[i].bouger = false;
+
+        // Trier les fourmis : celles les plus avancées bougent en premier
         std::vector<int> ordre;
         for (int i = 0; i < nbFourmis; i++)
             if (!fourmis[i].arrivee) ordre.push_back(i);
 
         std::sort(ordre.begin(), ordre.end(), [&](int a, int b) {
-            return positionDansChemin[fourmis[a].salle]
-                 > positionDansChemin[fourmis[b].salle];
+            int pa = posRef.count(fourmis[a].salle) ? posRef[fourmis[a].salle] : 0;
+            int pb = posRef.count(fourmis[b].salle) ? posRef[fourmis[b].salle] : 0;
+            return pa > pb;
         });
 
         bool auMoinsUnMouvement = false;
 
         for (int i : ordre) {
             Ants& f = fourmis[i];
-            int pos = positionDansChemin[f.salle];
 
-            if (pos == (int)chemin.size() - 1) {
-                f.arrivee = true;
+            if (f.salle == sommetArrivee) { f.arrivee = true; continue; }
+
+            // Construire les salles bloquees :
+            // Une salle est bloquee si elle est saturee par des fourmis
+            // qui n'ont PAS encore bouge cette etape.
+            // Les fourmis ayant deja bouge (bouger==true) ont libere leur ancienne salle.
+            std::unordered_map<std::string, int> occupationCourante;
+            for (const Ants& a : fourmis) {
+                if (a.arrivee) continue;
+                if (a.bouger)  continue; // a deja bouge, sa salle est liberee
+                occupationCourante[a.salle]++;
+            }
+
+            std::unordered_set<std::string> sallesBloquees;
+            for (const auto& [salle, occ] : occupationCourante) {
+                if (salle == f.salle)       continue; // propre salle toujours accessible
+                if (salle == sommetDepart)  continue; // depart toujours accessible
+                if (salle == sommetArrivee) continue; // arrivee toujours accessible
+                if (occ >= capacite(salle))
+                    sallesBloquees.insert(salle);
+            }
+
+            // BFS depuis la salle courante de la fourmi (sans muter l'etat global)
+            std::vector<std::string> cheminFourmi =
+                trouverChemin(f.salle, sommetArrivee, sallesBloquees);
+
+            if (cheminFourmi.size() < 2) {
+                f.bouger = false;
                 continue;
             }
 
-            std::string prochaine = chemin[pos + 1];
+            std::string prochaine = cheminFourmi[1];
 
+            // Verifier la capacite reelle de la prochaine salle
+            // (compte les fourmis deja arrivees sur cette salle ce tour)
             int occup = 0;
             for (const Ants& a : fourmis)
-                if (a.salle == prochaine && !a.arrivee) occup++;
+                if (!a.arrivee && a.salle == prochaine) occup++;
 
             bool peutAvancer = (prochaine == sommetArrivee)
                              || (occup < capacite(prochaine));
@@ -239,7 +261,7 @@ void Fourmiliere::resoudre() {
         }
 
         if (!auMoinsUnMouvement) {
-            std::cout << "  [blocage détecté — simulation arrêtée]\n";
+            std::cout << "  [blocage detecte -- simulation arretee]\n";
             break;
         }
 

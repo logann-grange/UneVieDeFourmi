@@ -3,7 +3,7 @@
 
 int main() {
     Fourmiliere f;
-    if (f.chargerDepuisFichier("fourmilieres/fourmiliere_un.txt")) {
+    if (f.chargerDepuisFichier("fourmilieres/salle_d_at-ant.txt")) {
         f.afficher();
         std::cout << "\n";
         f.resoudre();
