@@ -32,7 +32,7 @@ bool Fourmiliere::chargerDepuisFichier(const std::string& nomFichier) {
     std::ifstream fichier(nomFichier);
     if (!fichier) return false;
     std::string ligne;
-    std::regex regexFourmis("^f=([0-9]+)");
+    std::regex regexFourmis("^[Ff]=([0-9]+)");
         std::regex regexSommet("^(S[0-9]+|Sv|Sd)(?: \\{ *([0-9]+) *\\})?");
     std::regex regexArete("^(S[0-9]+|Sv|Sd) *- *(S[0-9]+|Sv|Sd)");
     std::smatch match;
@@ -114,89 +114,7 @@ int Fourmiliere::getCapacite(const std::string& nom) const {
     return 1; // par défaut
 }
 
-void Fourmiliere::resoudreBFS() {
-    std::map<std::string, std::vector<std::string>> adjacence;
 
-    for (Arete* a = teteAretes; a; a = a->suivant) {
-        adjacence[a->depart].push_back(a->arrivee);
-        adjacence[a->arrivee].push_back(a->depart);
-    }
-
-    std::queue<std::vector<std::string>> file ;
-    file.push({sommetDepart});
-    std::vector<std::string> cheminOptimal;
-
-    while (!file.empty()) {
-        std::vector<std::string> chemin = file.front();
-        file.pop();
-        std::string dernier = chemin.back();
-        if (dernier == sommetArrivee) {
-            cheminOptimal = chemin;
-            break;
-        }
-        for (const std::string& voisin : adjacence[dernier]) {
-            if (std::find(chemin.begin(), chemin.end(), voisin) == chemin.end()) {
-                std::vector<std::string> nouveauChemin = chemin;
-                nouveauChemin.push_back(voisin);
-                file.push(nouveauChemin);
-            }
-        }
-    }
-
-    std::map<std::string, std::map<int, int>> capacites;
-    std::vector<int> tempsDepart(nbFourmis, 0);
-
-
-    for (int i = 0; i < nbFourmis; ++i) {
-        int depart = 0;
-
-        while(true){
-            bool possible=true;
-            for (size_t j = 0; j < cheminOptimal.size()-1; ++j) {
-                std::string s1 = cheminOptimal[j];
-                if (s1 == sommetDepart || s1 == sommetArrivee) continue; // Capacité illimitée
-                int temps = depart + j;
-                int cap=getCapacite(s1);
-                if (capacites[s1][temps] >= cap) {
-                    possible = false;
-                    depart++;
-                    break;
-                }
-            }
-            if (possible) break;
-        }
-        tempsDepart[i] = depart;
-        for (size_t j = 1; j < cheminOptimal.size()-1; ++j) {
-            if (cheminOptimal[j] == sommetDepart || cheminOptimal[j] == sommetArrivee) continue; // Capacité illimitée
-            capacites[cheminOptimal[j]][depart + j]++;
-        }
-        fourmis[i] = Ants(sommetDepart, false);
-    }
-        int tourMax = tempsDepart[nbFourmis - 1] + cheminOptimal.size() - 1;
-
-for (int t = 0; t <= tourMax; t++) {
-    cout << "Tour " << t << " : ";
-
-    for (int i = 0; i < nbFourmis; i++) {
-
-        if (t==0){
-            cout << "F" << i + 1
-                 << " -> " << sommetDepart << "   ";
-            continue;
-        }
-
-        int indexDansChemin = t - tempsDepart[i];
-
-        // La fourmi est en route
-        if (indexDansChemin > 0 && (size_t)indexDansChemin < cheminOptimal.size()) {
-            cout << "F" << i + 1
-                 << " -> " << cheminOptimal[indexDansChemin] << "   ";
-        }
-    }
-    cout << endl;
-}
-
-}
 
 //void Fourmiliere::afficherEtapes() const {
 //   std::cout << "Étapes de déplacement des fourmis :" << std::endl;
