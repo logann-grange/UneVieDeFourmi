@@ -2,6 +2,8 @@
 #include <iostream>
 #include "ResolutionBFS.hpp"
 #include "BidirectionalBFS.hpp"
+#include "Affichage.hpp"
+
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -16,14 +18,7 @@ int main(int argc, char* argv[]) {
         std::cerr << "Erreur lors du chargement du fichier." << std::endl;
     }
 
-    cout << "==============================\n";
-    cout << "      MENU DE RESOLUTION      " << endl;
-    cout << "==============================\n";
-    cout << "Veuillez choisir un algorithme :\n";
-    cout << "  1. Resolution par BFS" << endl;
-    cout << "  2. Resolution par DFS" << endl;
-    cout << "  3. Combinaison BFS/DFS" << endl;
-    cout << "------------------------------" << endl;
+    afficherMenu();
 
     int choix;
     bool choixValide = false;

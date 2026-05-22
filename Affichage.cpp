@@ -20,3 +20,15 @@ void afficherEtapes(Fourmiliere fourmiliere, std::vector<std::vector<std::string
     }
 }
 
+void afficherMenu() {
+    cout << endl;
+    cout << "==============================\n";
+    cout << "      MENU DE RESOLUTION      " << endl;
+    cout << "==============================\n";
+    cout << "Veuillez choisir un algorithme :\n";
+    cout << "  1. Resolution par BFS" << endl;
+    cout << "  2. Resolution par DFS" << endl;
+    cout << "  3. Combinaison BFS/DFS" << endl;
+    cout << "------------------------------" << endl;
+}
+
