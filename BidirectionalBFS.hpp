@@ -2,6 +2,7 @@
 #define BIDIRECTIONALBFS_HPP
 
 #include "Fourmiliere.hpp"
+#include "Affichage.hpp"
 
 void ResolutionBidirectionalBFS(Fourmiliere fourmiliere);
 

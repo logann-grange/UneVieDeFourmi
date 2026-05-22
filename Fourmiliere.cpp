@@ -10,6 +10,8 @@
 #include <vector>
 #include <queue>
 
+using namespace std;
+
 
 Fourmiliere::Fourmiliere() : nbFourmis(0), teteSommets(nullptr), teteAretes(nullptr) {}
 
@@ -28,26 +30,26 @@ Fourmiliere::~Fourmiliere() {
     }
 }
 
-bool Fourmiliere::chargerDepuisFichier(const std::string& nomFichier) {
-    std::ifstream fichier(nomFichier);
+bool Fourmiliere::chargerDepuisFichier(const string &nomFichier) {
+    ifstream fichier(nomFichier);
     if (!fichier) return false;
-    std::string ligne;
-    std::regex regexFourmis("^[Ff]=([0-9]+)");
-        std::regex regexSommet("^(S[0-9]+|Sv|Sd)(?: \\{ *([0-9]+) *\\})?");
-    std::regex regexArete("^(S[0-9]+|Sv|Sd) *- *(S[0-9]+|Sv|Sd)");
-    std::smatch match;
-    while (std::getline(fichier, ligne)) {
-        if (std::regex_search(ligne, match, regexFourmis)) {
-            nbFourmis = std::stoi(match[1]);
+    string ligne;
+    regex regexFourmis("^[Ff]=([0-9]+)");
+    regex regexSommet("^(S[0-9]+|Sv|Sd)(?: \\{ *([0-9]+) *\\})?");
+    regex regexArete("^(S[0-9]+|Sv|Sd) *- *(S[0-9]+|Sv|Sd)");
+    smatch match;
+    while (getline(fichier, ligne)) {
+        if (regex_search(ligne, match, regexFourmis)) {
+            nbFourmis = stoi(match[1]);
             fourmis.resize(nbFourmis);
-        } else if (std::regex_search(ligne, match, regexArete)) {
-            std::string d = match[1];
-            std::string a = match[2];
+        } else if (regex_search(ligne, match, regexArete)) {
+            string d = match[1];
+            string a = match[2];
             Arete* ar = new Arete(d, a);
             ar->suivant = teteAretes;
             teteAretes = ar;
             // Ajouter les sommets s'ils n'existent pas déjà
-            for (const std::string& nomSommet : {d, a}) {
+            for (const string& nomSommet : {d, a}) {
                 bool existe = false;
                 for (Sommet* s = teteSommets; s; s = s->suivant) {
                     if (s->nom == nomSommet) {
@@ -61,9 +63,9 @@ bool Fourmiliere::chargerDepuisFichier(const std::string& nomFichier) {
                     teteSommets = s;
                 }
             }
-        } else if (std::regex_search(ligne, match, regexSommet)) {
-            std::string nom = match[1];
-            int cap = match[2].matched ? std::stoi(match[2]) : 1; // Par défaut, capacité = 1
+        } else if (regex_search(ligne, match, regexSommet)) {
+            string nom = match[1];
+            int cap = match[2].matched ? stoi(match[2]) : 1; // Par défaut, capacité = 1
             // Vérifier si le sommet existe déjà
             bool existe = false;
             for (Sommet* s = teteSommets; s; s = s->suivant) {
@@ -90,20 +92,18 @@ bool Fourmiliere::chargerDepuisFichier(const std::string& nomFichier) {
 }
 
 void Fourmiliere::afficher() const {
-    std::cout << endl << "Nombre de fourmis : " << nbFourmis << std::endl;
-    //std::cout << "Sommet de depart : " << sommetDepart << std::endl;
-    //std::cout << "Sommet d'arrivée : " << sommetArrivee << std::endl;
-    std::cout << "Sommets :" << std::endl;
+    cout << endl << "Nombre de fourmis : " << nbFourmis << endl;
+    cout << "Sommets :" << endl;
         for (Sommet* s = teteSommets; s; s = s->suivant) {
-            std::cout << "  " << s->nom << " { " << s->capacite << " }" << std::endl;
+            cout << "  " << s->nom << " { " << s->capacite << " }" << endl;
         }
-    std::cout << "Aretes :" << std::endl;
+    cout << "Aretes :" << endl;
     for (Arete* a = teteAretes; a; a = a->suivant) {
-        std::cout << "  " << a->depart << " - " << a->arrivee << std::endl;
+        cout << "  " << a->depart << " - " << a->arrivee << endl;
     }
 }
 
-int Fourmiliere::getCapacite(const std::string& nom) const {
+int Fourmiliere::getCapacite(const string &nom) const {
     // Sv et Sd = capacité illimitée
     if (nom == sommetDepart || nom == sommetArrivee) {
         return INT_MAX;
@@ -115,8 +115,8 @@ int Fourmiliere::getCapacite(const std::string& nom) const {
 }
 
 //void Fourmiliere::afficherEtapes() const {
-//   std::cout << "Étapes de déplacement des fourmis :" << std::endl;
+//   cout << "Étapes de déplacement des fourmis :" << endl;
 //    for (size_t i = 0; i < fourmis.size(); ++i) {
-//        std::cout << "Fourmi " << i + 1 << " : " << fourmis[i].Sommet << std::endl;
+//        cout << "Fourmi " << i + 1 << " : " << fourmis[i].Sommet << endl;
 //    }
 //}
