@@ -16,11 +16,11 @@ int main(int argc, char* argv[]) {
     }
 
     cout << "==============================\n";
-    cout << "      MENU DE RÉSOLUTION      " << endl;
+    cout << "      MENU DE RESOLUTION      " << endl;
     cout << "==============================\n";
     cout << "Veuillez choisir un algorithme :\n";
-    cout << "  1. Résolution par BFS" << endl;
-    cout << "  2. Résolution par DFS" << endl;
+    cout << "  1. Resolution par BFS" << endl;
+    cout << "  2. Resolution par DFS" << endl;
     cout << "  3. Combinaison BFS/DFS" << endl;
     cout << "------------------------------" << endl;
     cout << "Votre choix : ";
@@ -29,16 +29,16 @@ int main(int argc, char* argv[]) {
     cout << "------------------------------" << endl;
     switch (choix) {
         case 1:
-            cout << "\n[INFO] Résolution par BFS sélectionnée.\n";
+            cout << "\n[INFO] Resolution par BFS selectionnee.\n";
             ResolutionBFS(f);
             break;
         case 2:
-            cout << "\n[INFO] Résolution par DFS sélectionnée.\n";
+            cout << "\n[INFO] Resolution par DFS selectionnee.\n";
             // f.resoudreDFS();
             cout << "DFS non implémenté." << endl;
             break;
         case 3:
-            cout << "\n[INFO] Résolution par combinaison BFS/DFS sélectionnée.\n";
+            cout << "\n[INFO] RResolution par combinaison BFS/DFS selectionnee.\n";
             // f.resoudreCombinaison();
             cout << "Combinaison non implémentée." << endl;
             break;
