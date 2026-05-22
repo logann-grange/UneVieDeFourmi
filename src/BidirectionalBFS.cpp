@@ -13,30 +13,29 @@ using namespace std;
 // ─────────────────────────────────────────────────────────────────────────────
 // Reconstruit le chemin complet à partir des deux maps de parents
 // ─────────────────────────────────────────────────────────────────────────────
-static std::vector<std::string> reconstruireChemin(
-    const std::string& rencontre,
-    const std::map<std::string, std::string>& parentsAvant,
-    const std::map<std::string, std::string>& parentsArriere,
-    const std::string& depart,
-    const std::string& arrivee)
+static vector<string> reconstruireChemin(
+    const string& rencontre,
+    const map<string, string>& parentsAvant,
+    const map<string, string>& parentsArriere,
+    const string& depart,
+    const string& arrivee)
 {
-    std::vector<std::string> chemin;
+    vector<string> chemin;
 
     // Moitié avant : rencontre -> depart (on remonte puis on inverse)
-    std::string courant = rencontre;
+    string courant = rencontre;
     while (courant != depart) {
         chemin.push_back(courant);
         courant = parentsAvant.at(courant);
     }
     chemin.push_back(depart);
-    std::reverse(chemin.begin(), chemin.end());
+    reverse(chemin.begin(), chemin.end());
 
     // Moitié arrière : rencontre -> arrivee
-    // On ne repart que si le nœud de rencontre n'est pas déjà l'arrivée
+    // On ne repart que si le noeud de rencontre n'est pas déjà l'arrivée
     if (rencontre != arrivee && parentsArriere.count(rencontre)) {
         courant = parentsArriere.at(rencontre);
         while (courant != arrivee) {
-            // Éviter les doublons avec la moitié avant
             if (courant != chemin.back()) chemin.push_back(courant);
             courant = parentsArriere.at(courant);
         }
@@ -47,9 +46,29 @@ static std::vector<std::string> reconstruireChemin(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// BFS bidirectionnel 
+// Vérifie que chaque noeud du chemin respecte sa capacité à l'instant de passage
 // ─────────────────────────────────────────────────────────────────────────────
-static vector<string> bidirectionalBFS(
+static bool validerChemin(
+    const vector<string>& chemin,
+    map<string, map<int, int>>& capacites,
+    const Fourmiliere& fourmiliere,
+    int tempsDepart)
+{
+    for (size_t j = 1; j < chemin.size(); ++j) {
+        const string& noeud = chemin[j];
+        if (noeud == fourmiliere.sommetArrivee) continue;
+        int t   = tempsDepart + (int)j;
+        int cap = fourmiliere.getCapacite(noeud);
+        if (capacites[noeud][t] >= cap) return false;
+    }
+    return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BFS bidirectionnel — retourne TOUS les chemins de longueur minimale
+// pour permettre de choisir celui dont les capacités sont libres.
+// ─────────────────────────────────────────────────────────────────────────────
+static vector<vector<string>> bidirectionalBFS(
     const map<string, vector<string>>& adjacence,
     map<string, map<int, int>>& capacites,
     const Fourmiliere& fourmiliere,
@@ -58,15 +77,10 @@ static vector<string> bidirectionalBFS(
     const string& src = fourmiliere.sommetDepart;
     const string& dst = fourmiliere.sommetArrivee;
 
-    if (src == dst) return {src};
+    if (src == dst) return {{src}};
 
-    // Files d'exploration (une par direction)
     queue<string> fileAvant, fileArriere;
-
-    // Parents pour reconstruction du chemin
     map<string, string> parentsAvant, parentsArriere;
-
-    // Profondeur de chaque nœud depuis son côté de départ
     map<string, int> profAvant, profArriere;
 
     // Initialisation côté source
@@ -79,28 +93,29 @@ static vector<string> bidirectionalBFS(
     parentsArriere[dst] = dst;
     profArriere[dst]    = 0;
 
-    string noeudRendezVous = "";
+    // Noeuds de jonction trouvés au niveau courant
+    vector<string> noeudsCandidats;
 
-    // Vérifie si un nœud est disponible (capacité non saturée) à un instant t
-    auto capaciteDisponible = [&](const string &noeud, int profondeur) -> bool {
+    // Vérifie la capacité côté avant (temps de passage connu précisément)
+    auto capaciteDisponible = [&](const string& noeud, int profondeur) -> bool {
         if (noeud == src || noeud == dst) return true;
-        int t = tempsDepart + profondeur;
+        int t   = tempsDepart + profondeur;
         int cap = fourmiliere.getCapacite(noeud);
         return capacites[noeud][t] < cap;
     };
 
     // Alternance niveau par niveau : avant puis arrière
-    while (!fileAvant.empty() && !fileArriere.empty() && noeudRendezVous.empty()) {
+    while (!fileAvant.empty() && !fileArriere.empty() && noeudsCandidats.empty()) {
 
         // ── Étape avant ──────────────────────────────────────────────────────
         {
             int tailleNiveau = (int)fileAvant.size();
-            for (int k = 0; k < tailleNiveau && noeudRendezVous.empty(); ++k) {
+            for (int k = 0; k < tailleNiveau; ++k) {
                 string courant = fileAvant.front();
                 fileAvant.pop();
 
-                for (const string &voisin : adjacence.at(courant)) {
-                    if (parentsAvant.count(voisin)) continue; // déjà visité
+                for (const string& voisin : adjacence.at(courant)) {
+                    if (parentsAvant.count(voisin)) continue;
 
                     int profVoisin = profAvant[courant] + 1;
                     if (!capaciteDisponible(voisin, profVoisin)) continue;
@@ -109,20 +124,21 @@ static vector<string> bidirectionalBFS(
                     profAvant[voisin]    = profVoisin;
                     fileAvant.push(voisin);
 
+                    // Jonction : accumuler TOUS les noeuds de rencontre
+                    // sans s'arrêter au premier
                     if (parentsArriere.count(voisin)) {
-                        noeudRendezVous = voisin; // jonction trouvée
-                        break;
+                        noeudsCandidats.push_back(voisin);
                     }
                 }
             }
         }
 
-        if (!noeudRendezVous.empty()) break;
+        if (!noeudsCandidats.empty()) break;
 
         // ── Étape arrière ─────────────────────────────────────────────────────
         {
             int tailleNiveau = (int)fileArriere.size();
-            for (int k = 0; k < tailleNiveau && noeudRendezVous.empty(); ++k) {
+            for (int k = 0; k < tailleNiveau; ++k) {
                 string courant = fileArriere.front();
                 fileArriere.pop();
 
@@ -134,17 +150,23 @@ static vector<string> bidirectionalBFS(
                     fileArriere.push(voisin);
 
                     if (parentsAvant.count(voisin)) {
-                        noeudRendezVous = voisin;
-                        break;
+                        noeudsCandidats.push_back(voisin);
                     }
                 }
             }
         }
     }
 
-    if (noeudRendezVous.empty()) return {}; // aucun chemin
+    if (noeudsCandidats.empty()) return {};
 
-    return reconstruireChemin(noeudRendezVous, parentsAvant, parentsArriere, src, dst);
+    // Reconstruire un chemin pour chaque noeud de jonction trouvé
+    vector<vector<string>> chemins;
+    for (const string& rdv : noeudsCandidats) {
+        vector<string> c = reconstruireChemin(rdv, parentsAvant, parentsArriere, src, dst);
+        if (!c.empty()) chemins.push_back(c);
+    }
+
+    return chemins;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -172,13 +194,24 @@ void ResolutionBidirectionalBFS(Fourmiliere fourmiliere) {
         int depart = 0;
         vector<string> cheminFourmi;
 
-        // On retarde le départ jusqu'à trouver un chemin sans conflit de capacité
         while (cheminFourmi.empty()) {
-            cheminFourmi = bidirectionalBFS(adjacence, capacites, fourmiliere, depart);
+            // Récupérer tous les chemins de longueur minimale
+            vector<vector<string>> candidats =
+                bidirectionalBFS(adjacence, capacites, fourmiliere, depart);
+
+            // Choisir le premier chemin valide parmi tous les candidats
+            for (const vector<string>& candidat : candidats) {
+                if (validerChemin(candidat, capacites, fourmiliere, depart)) {
+                    cheminFourmi = candidat;
+                    break;
+                }
+            }
+
+            // Aucun chemin valide à ce temps de départ → retarder
             if (cheminFourmi.empty()) depart++;
         }
 
-        tempsDepart[i] = depart;
+        tempsDepart[i]    = depart;
         cheminsFourmis[i] = cheminFourmi;
 
         // Réserver les capacités sur le chemin trouvé
@@ -189,7 +222,7 @@ void ResolutionBidirectionalBFS(Fourmiliere fourmiliere) {
         fourmiliere.fourmis[i] = Ants(fourmiliere.sommetDepart, false);
     }
 
-    // Calcul du tour max (dernier moment où une fourmi est encore en mouvement)
+    // Calcul du tour max
     int tourMax = 0;
     for (int i = 0; i < fourmiliere.nbFourmis; ++i) {
         if (cheminsFourmis[i].empty()) continue;
