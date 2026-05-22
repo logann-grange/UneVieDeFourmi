@@ -1,6 +1,6 @@
-#include "BidirectionalBFS.hpp"
-#include "Ants.hpp"
-#include "Fourmiliere.hpp"
+#include "../include/BidirectionalBFS.hpp"
+#include "../include/Ants.hpp"
+#include "../include/Fourmiliere.hpp"
 #include <vector>
 #include <map>
 #include <string>

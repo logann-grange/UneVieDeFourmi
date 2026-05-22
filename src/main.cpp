@@ -1,8 +1,9 @@
-#include "Fourmiliere.hpp"
+#include "../include/Fourmiliere.hpp"
+#include "../include/ResolutionBFS.hpp"
+#include "../include/BidirectionalBFS.hpp"
+#include "../include/Affichage.hpp"
 #include <iostream>
-#include "ResolutionBFS.hpp"
-#include "BidirectionalBFS.hpp"
-#include "Affichage.hpp"
+
 
 using namespace std;
 
@@ -43,7 +44,6 @@ int main(int argc, char* argv[]) {
                 choixValide = true;
                 cout << "\n[INFO] RResolution par BFS Bidirectionnel selectionnee.\n";
                 ResolutionBidirectionalBFS(f);
-                //cout << "Combinaison non implémentée." << endl;
                 break;
             default:
                 cout << "\n[ERREUR] Choix invalide. Veuillez relancer le programme et choisir une option valide." << endl;

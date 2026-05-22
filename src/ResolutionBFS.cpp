@@ -1,8 +1,9 @@
-#include "Ants.hpp"
+#include "../include/Ants.hpp"
+#include "../include/Fourmiliere.hpp"
+#include "../include/Affichage.hpp"
 #include <vector>
 #include <map>
 #include <string>
-#include "Fourmiliere.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -10,7 +11,6 @@
 #include <climits>
 #include <queue>
 #include <algorithm>
-#include "Affichage.hpp"
 
 void ResolutionBFS(Fourmiliere fourmiliere) {
     std::map<std::string, std::vector<std::string>> adjacence;

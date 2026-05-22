@@ -1,5 +1,5 @@
-#include "Fourmiliere.hpp"
-#include "Ants.hpp"
+#include "../include/Fourmiliere.hpp"
+#include "../include/Ants.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -113,10 +113,3 @@ int Fourmiliere::getCapacite(const string &nom) const {
     }
     return 1; // par défaut
 }
-
-//void Fourmiliere::afficherEtapes() const {
-//   cout << "Étapes de déplacement des fourmis :" << endl;
-//    for (size_t i = 0; i < fourmis.size(); ++i) {
-//        cout << "Fourmi " << i + 1 << " : " << fourmis[i].Sommet << endl;
-//    }
-//}

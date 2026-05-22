@@ -1,4 +1,4 @@
-#include "Affichage.hpp"
+#include "../include/Affichage.hpp"
 
 void afficherEtapes(Fourmiliere fourmiliere, std::vector<std::vector<std::string>> cheminsFourmis, std::vector<int> tempsDepart, int tourMax) {
     for (int t = 1; t <= tourMax; ++t) {
@@ -31,4 +31,3 @@ void afficherMenu() {
     cout << "  3. Combinaison BFS/DFS" << endl;
     cout << "------------------------------" << endl;
 }
-
