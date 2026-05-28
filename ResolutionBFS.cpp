@@ -73,23 +73,36 @@ void ResolutionBFS(Fourmiliere fourmiliere) {
         if (fin > tourMax) tourMax = fin;
     }
 
-    // Affichage
+    // Affichage optimisé : arrêt dès que toutes les fourmis ayant un chemin sont arrivées
+    std::vector<bool> arrivee(fourmiliere.nbFourmis, false);
+    int fourmisAvecChemin = 0;
+    int fourmisArrivees = 0;
+    // Considère comme "arrivées" les fourmis sans chemin
+    for (int i = 0; i < fourmiliere.nbFourmis; ++i) {
+        if (cheminsFourmis[i].empty()) {
+            arrivee[i] = true;
+        } else {
+            fourmisAvecChemin++;
+        }
+    }
     for (int t = 0; t <= tourMax; t++) {
         std::cout << "Tour " << t << " : ";
-
         for (int i = 0; i < fourmiliere.nbFourmis; i++) {
-            if (cheminsFourmis[i].empty()) continue;
-
+            if (cheminsFourmis[i].empty() || arrivee[i]) continue;
             if (t == 0) {
                 std::cout << "F" << i + 1 << " -> " << fourmiliere.sommetDepart << "   ";
                 continue;
             }
-
             int indexDansChemin = t - tempsDepart[i];
             if (indexDansChemin > 0 && (size_t)indexDansChemin < cheminsFourmis[i].size()) {
                 std::cout << "F" << i + 1 << " -> " << cheminsFourmis[i][indexDansChemin] << "   ";
+                if (cheminsFourmis[i][indexDansChemin] == fourmiliere.sommetArrivee && !arrivee[i]) {
+                    arrivee[i] = true;
+                    fourmisArrivees++;
+                }
             }
         }
         std::cout << std::endl;
+        if (fourmisArrivees == fourmisAvecChemin) break;
     }
 }
