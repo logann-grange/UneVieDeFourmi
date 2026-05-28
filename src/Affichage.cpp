@@ -36,5 +36,6 @@ void afficherMenu()
     cout << "  1. Resolution par BFS" << endl;
     cout << "  2. Combinaison BFS/DFS" << endl;
     cout << "  3. Combinaison par A*" << endl;
+    cout << "  4. Benchmark (comparer les 3 algorithmes)" << endl;
     cout << "------------------------------" << endl;
 }

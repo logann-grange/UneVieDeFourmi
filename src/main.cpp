@@ -2,6 +2,7 @@
 #include "../include/ResolutionBFS.hpp"
 #include "../include/BidirectionalBFS.hpp"
 #include "../include/ResolutionAStar.hpp" 
+#include "../include/Benchmark.hpp"
 #include "../include/Affichage.hpp"
 #include <iostream>
 
@@ -39,7 +40,9 @@ int main(int argc, char *argv[])
         case 1:
             choixValide = true;
             cout << "\n[INFO] Resolution par BFS selectionnee.\n";
+            cout << "[TRACE] Avant appel ResolutionBFS" << endl;
             ResolutionBFS(f);
+            cout << "[TRACE] Apres appel ResolutionBFS" << endl;
             break;
         case 2:
             choixValide = true;
@@ -51,6 +54,12 @@ int main(int argc, char *argv[])
             cout << "\n[INFO] Resolution par A* selectionnee.\n";
             ResolutionAStar(f);
             break;
+        case 4:
+            choixValide = true;
+            cout << "\n[INFO] Benchmark des algorithmes selectionne.\n";
+            // Passe le nom du fichier à ResolutionBenchmark
+            ResolutionBenchmark(f, "fourmilieres/" + std::string(argv[1]));
+            break;    
         default:
             cout << "\n[ERREUR] Choix invalide. Veuillez relancer le programme et choisir une option valide." << endl;
         }
