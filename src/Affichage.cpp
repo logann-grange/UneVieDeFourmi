@@ -34,8 +34,7 @@ void afficherMenu()
     cout << "==============================\n";
     cout << "Veuillez choisir un algorithme :\n";
     cout << "  1. Resolution par BFS" << endl;
-    cout << "  2. Resolution par DFS" << endl;
-    cout << "  3. Combinaison BFS/DFS" << endl;
-    cout << "  4. Combinaison par A*" << endl;
+    cout << "  2. Combinaison BFS/DFS" << endl;
+    cout << "  3. Combinaison par A*" << endl;
     cout << "------------------------------" << endl;
 }

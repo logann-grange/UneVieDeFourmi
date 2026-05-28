@@ -43,16 +43,10 @@ int main(int argc, char *argv[])
             break;
         case 2:
             choixValide = true;
-            cout << "\n[INFO] Resolution par DFS selectionnee.\n";
-            // f.resoudreDFS();
-            cout << "DFS non implémenté." << endl;
-            break;
-        case 3:
-            choixValide = true;
             cout << "\n[INFO] RResolution par BFS Bidirectionnel selectionnee.\n";
             ResolutionBidirectionalBFS(f);
             break;
-        case 4: // <-- NOUVEAU CASE POUR A*
+        case 3: // <-- NOUVEAU CASE POUR A*
             choixValide = true;
             cout << "\n[INFO] Resolution par A* selectionnee.\n";
             ResolutionAStar(f);
