@@ -150,7 +150,7 @@ F3 -> S1
  
 | Membre | Contributions principales |
 |--------|--------------------------|
-| Mohaled | Algorithme BFS (ResolutionBFS.cpp), structure generale du projet |
+| Mohammed | Algorithme BFS (ResolutionBFS.cpp), structure generale du projet |
 | Daroueche | Algorithme A* (ResolutionAstar.cpp), calcul heuristique |
 | Logann | Algorithme BFS Bidirectionnel (BidirectionalBFS.cpp), reconstruction de chemin |
  
